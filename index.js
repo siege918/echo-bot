@@ -18,7 +18,7 @@ client.on("ready", () => {
 
 client.on("message", async (message) => {
     try {
-        if (listenChannels.includes(message.channel.id)) {
+        if (!listenChannels.includes(message.channel.id)) {
             return;
         }
 
