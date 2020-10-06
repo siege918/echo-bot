@@ -2,22 +2,23 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 
 const {
-    ECHO_LISTEN_CHANNEL_ID,
+    ECHO_LISTEN_CHANNEL_IDS,
     ECHO_LISTEN_REGEX,
     ECHO_ECHO_CHANNEL_ID,
     ECHO_TOKEN,
-    ECHO_MENTION_ROLE_ID
+    ECHO_MENTION_ROLE_ID,
 } = process.env;
 
 const regex = new RegExp(ECHO_LISTEN_REGEX);
+const listenChannels = ECHO_LISTEN_CHANNEL_IDS.split(/,\s?/);
 
 client.on("ready", () => {
     console.log("Connected.");
-})
+});
 
 client.on("message", async (message) => {
     try {
-        if (message.channel.id !== ECHO_LISTEN_CHANNEL_ID) {
+        if (!listenChannels.includes(message.channel.id)) {
             return;
         }
 
@@ -32,13 +33,13 @@ client.on("message", async (message) => {
         const echoChannel = client.channels.get(ECHO_ECHO_CHANNEL_ID);
 
         if (ECHO_MENTION_ROLE_ID) {
-            echoChannel.send(`Echoing for <@&${ECHO_MENTION_ROLE_ID}>: ${message.content}`);
+            echoChannel.send(
+                `Echoing for <@&${ECHO_MENTION_ROLE_ID}>: ${message.content}`
+            );
         } else {
             echoChannel.send(`Echoing: ${message.content}`);
         }
-    } catch (e) {
-
-    }
+    } catch (e) {}
 });
 
 client.login(ECHO_TOKEN);
