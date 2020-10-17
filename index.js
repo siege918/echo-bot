@@ -14,6 +14,12 @@ const listenChannels = ECHO_LISTEN_CHANNEL_IDS.split(/,\s?/);
 
 client.on("ready", () => {
     console.log("Connected.");
+    const echoChannel = client.channels.get(ECHO_ECHO_CHANNEL_ID);
+    const rightNow = new Date();
+
+    echoChannel.send(
+        `Echo bot online and listening for messages\nLast restart - ${rightNow.toUTCString()}`
+    );
 });
 
 client.on("message", async (message) => {
@@ -43,3 +49,7 @@ client.on("message", async (message) => {
 });
 
 client.login(ECHO_TOKEN);
+
+process.on("SIGTERM", () => {
+    client.destroy();
+});
