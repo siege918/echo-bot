@@ -8,7 +8,7 @@ const {
     ECHO_ECHO_CHANNEL_ID,
     ECHO_TOKEN,
     ECHO_MENTION_ROLE_ID,
-    ECHO_CHANNELS_CONFIG
+    ECHO_CHANNELS_CONFIG,
 } = process.env;
 
 var channelConfigs = [];
@@ -21,20 +21,22 @@ if (!ECHO_CHANNELS_CONFIG) {
         regex,
         listenChannels,
         echoChannel: ECHO_ECHO_CHANNEL_ID,
-        mentionRole: ECHO_MENTION_ROLE_ID
+        mentionRole: ECHO_MENTION_ROLE_ID,
     });
 } else {
     if (!existsSync(ECHO_CHANNELS_CONFIG)) {
         throw "Specified config file does not exist";
     }
 
-    const readChannelConfigs = JSON.parse(readFileSync(ECHO_CHANNELS_CONFIG, "utf8"));
+    const readChannelConfigs = JSON.parse(
+        readFileSync(ECHO_CHANNELS_CONFIG, "utf8")
+    );
 
     channelConfigs = readChannelConfigs.map((val) => {
         return {
             ...val,
-            regex: new RegExp(val.regex)
-        }
+            regex: new RegExp(val.regex),
+        };
     });
 }
 
@@ -61,11 +63,17 @@ const tryEcho = (message, echoConfig) => {
         } else {
             echoChannel.send(`Echoing: ${message.content}`);
         }
-    } catch (e) { }
+    } catch (e) {}
 };
 
 client.on("ready", () => {
     console.log("Connected.");
+    const echoChannel = client.channels.get(ECHO_ECHO_CHANNEL_ID);
+    const rightNow = new Date();
+
+    echoChannel.send(
+        `Echo bot online and listening for messages\nLast restart - ${rightNow.toUTCString()}`
+    );
 });
 
 client.on("message", async (message) => {
@@ -75,3 +83,7 @@ client.on("message", async (message) => {
 });
 
 client.login(ECHO_TOKEN);
+
+process.on("SIGTERM", () => {
+    client.destroy();
+});
